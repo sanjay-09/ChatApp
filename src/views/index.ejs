@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat App</title>
+</head>
+<body>
+    <h3>Chat App</h3>
+    <input type="text" id="connect" hidden="true" data-roomId="<%= id %>">
+
+    <input type="text"  id="msgId" placeholder="type your message">
+    <input type="text" id="userId" placeholder="type your your name">
+    <button id="submitBtn">Submit</button>
+    
+    <ul id="list">
+        <% for (let i = 0; i < chats.length; i++) { %>
+            <li><%= chats[i].userName %>: <%= chats[i].content %></li>
+          <% } %>
+
+    </ul>
+
+
+    <script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+
+
+  const msg=document.getElementById("msgId");
+  const btn=document.getElementById("submitBtn");
+  const list=document.getElementById("list");
+  const connect=document.getElementById("connect");
+  const userId=document.getElementById("userId");
+  socket.emit("join_room",{
+    id:connect.getAttribute("data-roomId")
+  })
+  btn.onclick=()=>{
+    socket.emit("client_side",{
+        message:msg.value,
+        userName:userId.value,
+        id:connect.getAttribute("data-roomId")
+    })
+  }
+  socket.on("server_side",(data)=>{
+    const li=document.createElement("li");
+    li.innerText=`${data.userName}:${data.message}`;
+    list.appendChild(li);
+
+  })
+
+</script>
+    
+</body>
+</html>
